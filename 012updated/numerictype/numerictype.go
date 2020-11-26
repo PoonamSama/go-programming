@@ -9,7 +9,7 @@ func main() {
 	y := 42.67
 	fmt.Println(x)
 	fmt.Println(y)
-	fmt.Printf("%T", y)
+	fmt.Printf("%T\n", y)
 	fmt.Println(a)
 
 }
