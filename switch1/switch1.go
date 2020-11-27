@@ -18,6 +18,9 @@ func main() {
 		fallthrough
 	case (3 < 1):
 		fmt.Println("This should not  print")
+		fallthrough
+	default:
+		fmt.Println("This is default case")
 
 	}
 }
