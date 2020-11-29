@@ -17,5 +17,7 @@ func main() {
 		for i, v := range value { //to access the slice of strings
 			fmt.Println(i, v)
 		}
+		x["nora"] = []string{"ty", "shy", "kei"}
+		fmt.Println(x)
 	}
 }
