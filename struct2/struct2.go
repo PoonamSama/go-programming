@@ -10,7 +10,7 @@ type people struct {
 	age       int
 }
 type secretAgent struct {
-	people //we don't name here
+	people //we don't name here this is anonymous field; unqualified type name acts as field name
 	ltk    bool
 }
 
