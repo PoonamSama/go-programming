@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-type people struct {
+type people struct { //composite or aggregate data type
 	firstname string
 	lastname  string
 	age       int
