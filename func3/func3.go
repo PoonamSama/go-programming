@@ -5,12 +5,13 @@ import (
 )
 
 func main() {
-	foo(1, 2, 3, 4, 5, 6, 67, 8)
+	k := foo(1, 2, 3, 4, 5, 6, 67, 8) // //EVERRYTHING IN GO IS PASS BY VALUE  these are arguments
+	fmt.Println("The sum is:", k)
 	fmt.Println("Hello, playground from main")
 }
 
 //func( r receivers) identifier (parameters)(return(s)) {...}
-func foo(x ...int) {
+func foo(x ...int) int { //x ...int is parameter
 	fmt.Println(x)
 	fmt.Printf("%T\n", x)
 	sum := 0
@@ -18,4 +19,5 @@ func foo(x ...int) {
 		sum += v
 		fmt.Printf("For index value %d we add value %d sum is %d\n", i, v, sum)
 	}
+	return sum
 }
