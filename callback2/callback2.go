@@ -6,11 +6,10 @@ func main() {
 	a := 3
 	b := 5
 	s := add(a, b)
-	
+
 	m := multiply(a, b)
-	
+
 	s1, m1 := math(a, b, add, multiply)
-	)
 	fmt.Println(s, m, s1, m1)
 
 }
