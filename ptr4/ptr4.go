@@ -12,7 +12,7 @@ type square struct {
 	side float64
 }
 
-func (s *circle) area() float64 {
+func (s *circle) area() float64 { //ptr receiver
 	return math.Pi * s.radius * s.radius
 }
 func (s square) area() float64 {
@@ -33,7 +33,9 @@ func main() {
 	s1 := square{
 		side: 2,
 	}
-	bar(&c1)
+	bar(&c1)//ptr value
 	bar(s1)
+	// note that ptr receiver and non ptr value doesnt work
+	fmt.Printf("%T",&c1)
 
 }
