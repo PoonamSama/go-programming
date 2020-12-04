@@ -12,11 +12,17 @@ type square struct {
 	side float64
 }
 
-func (c circle) area() float64 {
+func (c circle) area() float64 {     //method area
 	return math.Pi * c.radius * c.radius
 }
-func (c square) area() float64 {
+func (c square) area() float64 {   //method area
 	return c.side * c.side
+}
+type shape interface{
+	area() float64
+}
+func info (s shape){
+	fmt.Println(s.area())
 }
 func main() {
 	c1 := circle{
@@ -25,7 +31,6 @@ func main() {
 	s1 := square{
 		side: 4,
 	}
-	x1 := c1.area()
-	y1 := s1.area()
-	fmt.Println(x1, y1)
+	info (c1)
+	info (s1) 
 }
