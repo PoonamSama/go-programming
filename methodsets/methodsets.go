@@ -13,6 +13,7 @@ type person struct {
 
 func changeme(x *person) {
 	x.name = "James"
+	//wecould also do this: (*x.name)="Jas"
 }
 func main() {
 	p1 := person{
