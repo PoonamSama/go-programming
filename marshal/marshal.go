@@ -6,8 +6,8 @@ import (
 )
 
 type person struct {
-	First string   //if we write like first (lowercase),o/p would be empty{}{}
-	Last  string  //can only access if it starts with capital letter
+	First string //if we write like first (lowercase),o/p would be empty[{}{}]
+	Last  string //can only access if it starts with capital letter
 	Age   int
 }
 
@@ -21,7 +21,7 @@ func main() {
 	p2 := person{
 		First: "Miss",
 		Last:  "Moneypenny",
-		Age:   27,
+		
 	}
 
 	people := []person{p1, p2}
