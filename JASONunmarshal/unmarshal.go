@@ -18,6 +18,7 @@ func main() {
 	fmt.Printf("%T\n", bs)
 
 	var people []person //this is a slice of type person
+	//we can also use people:=[]person
 	err := json.Unmarshal(bs, &people)
 	if err != nil {
 		fmt.Println(err)
