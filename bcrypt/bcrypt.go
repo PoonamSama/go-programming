@@ -7,8 +7,8 @@ import (
 func main(){
 
 s := `password123`
-	bs, err := bcrypt.GenerateFromPassword([]byte(s), bcrypt.MinCost)
-	if err != nil {
+	bs, err := bcrypt.GenerateFromPassword([]byte(s), bcrypt.MinCost) //this is to encrypt
+	if err != nil {                                                  //returns a sliceofbytes and error
 		fmt.Println(err)
 	}
 	fmt.Println(s)
@@ -16,8 +16,8 @@ s := `password123`
 
 	loginPword1 := `password1234`
 
-	err = bcrypt.CompareHashAndPassword(bs, []byte(loginPword1))
-	if err != nil {
+	err = bcrypt.CompareHashAndPassword(bs, []byte(loginPword1)) // func to decrypt a given pword
+	if err != nil {                                             // returns error
 		fmt.Println("YOU CAN'T LOGIN")
 		return
 	}
