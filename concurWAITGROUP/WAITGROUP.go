@@ -13,12 +13,12 @@ func main() {
 	fmt.Println("GOARCH \t", runtime.GOARCH)
 	fmt.Println("CPUs  \t", runtime.NumCPU())         //these are func(),take no parameter,return int
 	fmt.Println("GoRoutines", runtime.NumGoroutine()) //NumCPU and NumGoroutine, dont add s
-	wg.Add(1)
+	wg.Add(1)                                         //add (1) thing we are waiting for
 	go foo()
 	bar()
 	fmt.Println("CPUs  \t", runtime.NumCPU())
 	fmt.Println("GoRoutines", runtime.NumGoroutine())
-	wg.Wait()
+	wg.Wait() // wait until we are done()
 
 }
 func foo() {
