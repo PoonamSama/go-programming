@@ -24,7 +24,7 @@ func loadchannel(c chan int) {
 }
 func fanoutin(c1, c2 chan int) {
 	var wg sync.WaitGroup
-	for v := range c1 {
+	for v := range c1 { //we're ranging over c1 and launch goroutines(fanout) acc to number of values c1 has
 		wg.Add(1)        //Add just before launching goroutine
 		go func(x int) { //x int is parameter for the anon func
 			c2 <- somework(x) //launching 20 goroutines to do somework() this is fanout and sending these values to c2 channel is fanin
