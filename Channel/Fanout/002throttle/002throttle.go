@@ -27,9 +27,9 @@ func fanoutin(c1, c2 chan int) {
 	for i := 0; i < goroutines; i++ {
 		go func() {
 			for v := range c1 {
-				func(v2 int) {
-					c2 <- somework(v2)
-				}(v)
+
+				c2 <- somework(v)
+
 				wg.Done()
 
 			}
