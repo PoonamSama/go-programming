@@ -17,7 +17,7 @@ func main() {
 		d <- 111
 		close(d)
 	}()
-	dvalue, d_ok := <-d
+	dvalue, d_ok := <-d //1st time
 	fmt.Println(dvalue, d_ok)
 	dvalue, d_ok = <-d //DONT DO D_OK:=--- AGAIN BCZ THESE ARE NOT NEW VARIABLES
 	fmt.Println(dvalue, d_ok)
