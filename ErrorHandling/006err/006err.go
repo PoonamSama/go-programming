@@ -22,6 +22,7 @@ func main() {
 	bs, err := ioutil.ReadAll(f)
 	if err != nil {
 		fmt.Println(err)
+		return
 
 	}
 	fmt.Println(string(bs))
