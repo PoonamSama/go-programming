@@ -5,9 +5,12 @@ import (
 	"runtime"
 )
 
+const x = 10
+
+var y = 10
+
 func main() {
-	x := 10
-	y := 10
+
 	c := generate(x, y)
 	for i := 0; i < x*y; i++ {
 		fmt.Println(i, <-c)
