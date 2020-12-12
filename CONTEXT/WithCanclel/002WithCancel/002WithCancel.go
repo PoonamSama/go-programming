@@ -31,7 +31,7 @@ func main() {
 	fmt.Println("aboiut to cancel context")
 	cancel()
 	fmt.Println("cancelled context")
-	time.Sleep(time.Second * 2)
+	time.Sleep(time.Second * 2) //THESE TIMESLEEP ARE IMPORTANT IN THE CODE
 	fmt.Println("error check 3:", ctx.Err())
 	fmt.Println("num of goroutines:", runtime.NumGoroutine())
 
