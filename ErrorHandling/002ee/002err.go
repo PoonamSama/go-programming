@@ -21,4 +21,5 @@ func main() {
 	}
 	defer f2.Close()
 	fmt.Println("check the log.txt file in the directory")
+
 }
