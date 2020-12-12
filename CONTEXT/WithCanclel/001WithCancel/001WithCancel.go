@@ -21,6 +21,8 @@ func main() {
 	fmt.Println("ContextWithCancel", ctx)
 	fmt.Println("ContextWithCancel Error:", ctx.Err())
 	fmt.Printf("Context type %T\t \n", ctx)
+	fmt.Println("cancel:", cancel)
+	fmt.Printf("cancel type %T\t \n:", cancel)
 
 	fmt.Println("________")
 
