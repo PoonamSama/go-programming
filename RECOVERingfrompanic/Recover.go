@@ -9,7 +9,7 @@ func main() {
 
 func f() {
 	defer func() {
-		if r := recover(); r != nil {
+		if r := recover(); r != nil { //recover works only inside defer ;two condn for if
 			fmt.Println("Recovered in f", r)
 		}
 	}()
