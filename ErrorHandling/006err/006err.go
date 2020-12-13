@@ -19,11 +19,11 @@ func main() {
 		return
 	}
 	defer f.Close()
-	bs, err := ioutil.ReadAll(f)
+	bs, err := ioutil.ReadAll(f) //to read from file f,which is names.txt(we hv to open it frst)
 	if err != nil {
 		fmt.Println(err)
 		return
 
 	}
-	fmt.Println(string(bs))
+	fmt.Println(string(bs)) //prints what it got frm the files
 }
