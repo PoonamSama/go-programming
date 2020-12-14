@@ -1,7 +1,7 @@
 //All these comments couldnt be seen
 //because of a blank in between
 
-//"Package dog"
+//Package dog does this
 package dog
 
 //Dogyears will take human years and convert them into dog years
