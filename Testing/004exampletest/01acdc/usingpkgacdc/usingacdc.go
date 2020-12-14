@@ -9,4 +9,5 @@ import (
 func main() {
 	z := acdc.Sum(6, 1, 1, 2)
 	fmt.Println(z)
+	fmt.Printf("type of z is : %T", z)
 }
