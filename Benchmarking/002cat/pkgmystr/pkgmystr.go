@@ -5,13 +5,17 @@ import "strings"
 
 //Catenate function will join separate words into a sentence
 func Catenate(xs []string) string {
-	s := ""
-	for _, v := range xs {
-		s += v
+	s := xs[0]
+	for _, v := range xs[1:] {
+
 		s += " "
+		s += v
+
 	}
 	return s
 }
+
+//Join also joins the separate words
 func Join(xs []string) string {
 	return strings.Join(xs, " ")
 }
