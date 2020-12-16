@@ -14,7 +14,7 @@ func main() {
 	for i := 0; i < len(s); i++ {
 		fmt.Printf("%#U", s[i]) //gives the UTF8 code
 	}
-	fmt.Println("\n")
+	fmt.Printf("\n")
 	for i := 0; i < len(s); i++ {
 		fmt.Printf("%x\t", s[i])
 	}

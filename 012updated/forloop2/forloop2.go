@@ -10,6 +10,7 @@ func main() {
 	fmt.Println(x, y)
 	fmt.Println(a, b)
 	s := "Hello Aloha"
+	fmt.Println(s)
 	bs := []byte(s)
 	fmt.Println(bs)
 	// reversing a string
@@ -18,4 +19,5 @@ func main() {
 	}
 	fmt.Println(bs)
 	fmt.Printf("%c\n", bs)
+	fmt.Println(string(bs))
 }
