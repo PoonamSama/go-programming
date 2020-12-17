@@ -92,5 +92,5 @@ func denoms(x int) {
 	fmt.Printf("500*%d +200*%d +100*%d \n", q1, q2, q3)
 }
 
-// this code doesn't count lowbalance,max amount of transaction,not100multiples, as number of transactions
-//but it exits once an invalid value is input
+// this code doesn't count lowbalance,max amount of transaction,not100multiples, as number of
+//transactions,but it exits once an invalid value is input

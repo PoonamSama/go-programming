@@ -18,7 +18,10 @@ func main() {
 		count++
 		//	fmt.Println("counter:", count)
 		if count > 5 {
-			e := fmt.Errorf("Error! you have made maximum number of transactions for today:%v", count)
+			count--
+			totaltransaction = count
+			fmt.Println("Your total transactions for today:", totaltransaction)
+			e := fmt.Errorf("Error! you have made maximum number of transactions for today")
 			log.Fatalln(e)
 
 		}
@@ -29,14 +32,18 @@ func main() {
 			count--
 			err := errors.New("ERROR generated: You can't withdraw more than 5000")
 			fmt.Println(err)
-			defer log.Fatalln(err)
+
 			var x string
 			fmt.Println("Do you want to enter another valid value? Type yes or no")
 			fmt.Scanf("%s", &x)
+
 			if x == "yes" {
 				continue
-			} else {
+			} else if x == "no" {
 				fmt.Println("We are exiting")
+				break
+			} else {
+				fmt.Println("Invalid input.Exiting ")
 				break
 			}
 
@@ -46,17 +53,19 @@ func main() {
 
 			err := errors.New("ERROR generated: Please enter a multiple of 100")
 			fmt.Println(err)
-			defer log.Fatalln(err)
+
 			var x string
 			fmt.Println("Do you want to enter another valid value? Type yes or no")
 			fmt.Scanf("%s", &x)
 			if x == "yes" {
 				continue
-			} else {
+			} else if x == "no" {
 				fmt.Println("We are exiting")
 				break
+			} else {
+				fmt.Println("Invalid input.Exiting ")
+				break
 			}
-
 		}
 
 		if balance < amount {
@@ -65,14 +74,17 @@ func main() {
 			err := errors.New("ERROR generated :Low balance")
 			fmt.Println(err)
 			fmt.Println("Your account balance is:", balance, "Please enter a valid amount.")
-			defer log.Fatalln(err)
+
 			var x string
 			fmt.Println("Do you want to enter another valid value? Type yes or no")
 			fmt.Scanf("%s", &x)
 			if x == "yes" {
 				continue
-			} else {
+			} else if x == "no" {
 				fmt.Println("We are exiting")
+				break
+			} else {
+				fmt.Println("Invalid input.Exiting ")
 				break
 			}
 
@@ -86,6 +98,7 @@ func main() {
 		fmt.Println("Please type yes if you wish to continue,and no to exit")
 		fmt.Scanf("%s", &s)
 		fmt.Println("you entered:", s)
+
 		if s == "yes" {
 			continue
 		} else if s == "no" {
