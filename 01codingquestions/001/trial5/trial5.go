@@ -5,18 +5,23 @@ import (
 	"log"
 )
 
+var totaltransaction int
+var count = 0
+
 func main() {
 	var balance int = 9563
 	var amount int
-	var totaltransaction int
 
 	var s string
-	count := 0
+
 	s = "yes"
 	for s == "yes" {
 		count++
-		fmt.Println("counter:", count)
+		//fmt.Println("counter:", count)
+
 		if count > 5 {
+			totaltransaction = count
+			fmt.Println("Your total transactions for today:", totaltransaction)
 			e := fmt.Errorf("Error! you have made maximum transactions for today")
 			log.Fatalln(e)
 			//break
@@ -26,28 +31,37 @@ func main() {
 		fmt.Println("Account Balance:", balance)
 		if amount > 5000 {
 			count--
-			fmt.Println("ERROR! You can't withdraw more than 5000")
+			totaltransaction = count
+			fmt.Println("Your total transactions for today:", totaltransaction)
+			err := fmt.Errorf("ERROR! You can't withdraw more than 5000")
+			log.Fatalln(err)
 
 			continue
 		}
 		if amount%100 != 0 {
 			count--
-			fmt.Println("ERROR! Please enter a multiple of 100")
+			totaltransaction = count
+			fmt.Println("Your total transactions for today:", totaltransaction)
+			err := fmt.Errorf("ERROR! Please enter a multiple of 100")
+			log.Fatalln(err)
 
 			continue
 		}
 
 		if balance < amount {
 			count--
-			fmt.Println("ERROR !Low balance!")
+			totaltransaction = count
+			fmt.Println("Your total transactions for today:", totaltransaction)
+			err := fmt.Errorf("ERROR !Low balance")
 			fmt.Println("Your account balance is:", balance, "Please enter a valid amount.")
+			log.Fatalln(err)
 
 			continue
 		}
 		denoms(amount)
 		balance = balance - amount
 		fmt.Println("Transaction successful.Your balance now is:", balance)
-		totaltransaction = count
+		//totaltransaction = count
 		fmt.Println("-------------")
 
 		fmt.Println("Please type yes if you wish to continue,and no to exit")
@@ -79,4 +93,4 @@ func denoms(x int) {
 }
 
 // this code doesn't count lowbalance,max amount of transaction,not100multiples, as number of transactions
-//also doesn't exit and continues to ask if you want to make another transaction"
+//but it exits once an invalid value is input

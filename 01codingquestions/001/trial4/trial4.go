@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 )
@@ -8,7 +9,7 @@ import (
 func main() {
 	var balance int = 9563
 	var amount int
-	var totaltransaction int
+	var totaltransaction int = 0
 
 	var s string
 	count := 0
@@ -17,7 +18,7 @@ func main() {
 		count++
 		fmt.Println("counter:", count)
 		if count > 5 {
-			e := fmt.Errorf("Error! you have made maximum transactions for today")
+			e := fmt.Errorf("Error! you have made maximum number of transactions for today")
 			log.Fatalln(e)
 			//break
 		}
@@ -26,23 +27,55 @@ func main() {
 		fmt.Println("Account Balance:", balance)
 		if amount > 5000 {
 			count--
-			fmt.Println("ERROR! You can't withdraw more than 5000")
+			err := errors.New("ERROR generated: You can't withdraw more than 5000")
+			fmt.Println(err)
+			defer log.Fatalln(err)
+			var x string
+			fmt.Println("Do you want to enter another valid value? Type yes or no")
+			fmt.Scanf("%s", &x)
+			if x == "yes" {
+				continue
+			} else {
+				fmt.Println("We are exiting")
+				break
+			}
 
-			continue
 		}
 		if amount%100 != 0 {
 			count--
-			fmt.Println("ERROR! Please enter a multiple of 100")
 
-			continue
+			err := errors.New("ERROR generated: Please enter a multiple of 100")
+			fmt.Println(err)
+			defer log.Fatalln(err)
+			var x string
+			fmt.Println("Do you want to enter another valid value? Type yes or no")
+			fmt.Scanf("%s", &x)
+			if x == "yes" {
+				continue
+			} else {
+				fmt.Println("We are exiting")
+				break
+			}
+
 		}
 
 		if balance < amount {
 			count--
-			fmt.Println("ERROR !Low balance!")
-			fmt.Println("Your account balance is:", balance, "Please enter a valid amount.")
 
-			continue
+			err := errors.New("ERROR generated :Low balance")
+			fmt.Println(err)
+			fmt.Println("Your account balance is:", balance, "Please enter a valid amount.")
+			defer log.Fatalln(err)
+			var x string
+			fmt.Println("Do you want to enter another valid value? Type yes or no")
+			fmt.Scanf("%s", &x)
+			if x == "yes" {
+				continue
+			} else {
+				fmt.Println("We are exiting")
+				break
+			}
+
 		}
 		denoms(amount)
 		balance = balance - amount
@@ -65,6 +98,7 @@ func main() {
 
 	}
 	fmt.Println("your Total Transactions for today are:", totaltransaction)
+
 }
 func denoms(x int) {
 	var q1 int
@@ -77,6 +111,3 @@ func denoms(x int) {
 	q3 = x / 100
 	fmt.Printf("500*%d +200*%d +100*%d \n", q1, q2, q3)
 }
-
-// this code doesn't count lowbalance,max amount of transaction,not100multiples, as number of transactions
-//also doesn't exit and continues to ask if you want to make another transaction"
