@@ -8,6 +8,7 @@ import (
 func main() {
 	var balance int = 9563
 	var amount int
+	var totaltransaction int
 
 	var s string
 	count := 0
@@ -24,25 +25,29 @@ func main() {
 		fmt.Scanf("%d", &amount)
 		fmt.Println("Account Balance:", balance)
 		if amount > 5000 {
-			fmt.Println("ERROR! You can't withdraw more than 5000")
 			count--
+			fmt.Println("ERROR! You can't withdraw more than 5000")
+
 			continue
 		}
 		if amount%100 != 0 {
-			fmt.Println("ERROR! Please enter a multiple of 100")
 			count--
+			fmt.Println("ERROR! Please enter a multiple of 100")
+
 			continue
 		}
 
 		if balance < amount {
+			count--
 			fmt.Println("ERROR!Low balance!")
 			fmt.Println("Your account balance is:", balance, "Please enter a valid amount.")
-			count--
+
 			continue
 		}
 		denoms(amount)
 		balance = balance - amount
 		fmt.Println("Transaction successful.Your balance now is:", balance)
+		totaltransaction = count
 		fmt.Println("-------------")
 
 		fmt.Println("Please type yes if you wish to continue,and no to exit")
@@ -59,6 +64,7 @@ func main() {
 		}
 
 	}
+	fmt.Println("your Total Transactions for today are:", totaltransaction)
 }
 func denoms(x int) {
 	var q1 int
@@ -71,3 +77,6 @@ func denoms(x int) {
 	q3 = x / 100
 	fmt.Printf("500*%d +200*%d +100*%d \n", q1, q2, q3)
 }
+
+// this code doesn't count lowbalance,max amount of transaction,not100multiples, as number of transactions
+//also doesn't exit and continues to ask if you want to make another transaction"
