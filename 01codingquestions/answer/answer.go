@@ -15,7 +15,6 @@ func main() {
 	count := 0
 	s = "y"
 	for s == "y" {
-
 		x, amount := amt(balance)
 		switch x {
 		case 0:
@@ -29,14 +28,13 @@ func main() {
 			fmt.Println("Error!Please enter amount divisible by 100 ")
 			break
 		case 30:
-			fmt.Printf("Error!Please enter amount less than or equal to your account balance that is: %v\n", balance)
+			fmt.Println("Error! Please enter amount less than or equal to 5000")
 			break
 		case 40:
-			fmt.Println("Please enter amount less than 5000")
+			fmt.Printf("Error!Please enter amount less than or equal to your account balance that is: %v\n", balance)
 			break
 		default:
 			count++
-			//fmt.Println("count:", count)
 			fmt.Println("You want to withdraw:", amount)
 			fmt.Println("Your account balance:", balance)
 			denoms(amount)
@@ -45,20 +43,16 @@ func main() {
 			fmt.Println("------------------------")
 			break
 		}
-		//fmt.Println(amount)
-		//fmt.Println(count)
 		if count >= 5 {
-			e := fmt.Errorf("Error! you have made maximum number of transactions for today: 5")
+			e := fmt.Errorf("Error! you have made maximum number of transactions for today: 5. Initiating Exit")
 			log.Fatalln(e)
 		}
 		if balance < 100 {
+			fmt.Println("Your total transactions today:", count)
 			e := fmt.Errorf("Error!your account balance is %v .It is less than 100.You can't withdraw", balance)
 			log.Fatalln((e))
 		}
-
-		//	fmt.Println("value of s", s)
 		s = foo()
-		//fmt.Println("value of s", s)
 		for s == "none" {
 			s = foo()
 		}
@@ -67,7 +61,6 @@ func main() {
 }
 func amt(y int64) (int64, int64) {
 	scanner := bufio.NewScanner(os.Stdin)
-
 	fmt.Println("Enter the amount you want to withdraw:")
 	scanner.Scan()
 
@@ -75,46 +68,49 @@ func amt(y int64) (int64, int64) {
 	if err != nil {
 		return 0, input
 	}
-	if input < 0 {
+	if input <= 0 {
 		return 10, input
 	}
 	if input%100 != 0 {
 		return 20, input
 	}
-	if y-input < 0 {
+	if input > 5000 {
 		return 30, input
 	}
-	if input > 5000 {
+	if y-input < 0 {
 		return 40, input
 	}
 	return 50, input
 }
 func foo() string {
-	var s string
 	var x string
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("Do you want to enter another value and start a new transaction?")
+	fmt.Println("Enter your choice:Press enter to continue and n to exit")
+	char, _, err := reader.ReadRune()
 
-	fmt.Println("Do you want to make another transaction? enter y to continue and n to exit")
-	fmt.Scanf("%s", &s)
-
-	switch s {
-
+	if err != nil {
+		fmt.Println(err)
+	}
+	switch char {
 	default:
 		{
 			x = "none"
-			fmt.Println("Error!Wrong input. Enter y or n")
+			fmt.Println("Error!Wrong input.You can only Press Enter key or enter n")
 		}
-	case "y":
 
-		fmt.Println("You chose:yes")
-		x = "y"
-
-	case "n":
-
-		fmt.Println("You chose:no; Exit")
-		x = "n"
+	case '\n':
+		{
+			fmt.Println("You chose:yes, start a new transaction")
+			x = "y"
+		}
+	case 'n':
+		{
+			fmt.Println("You chose:no; Exit")
+			x = "n"
+		}
 
 	}
-
 	return x
 }
 func denoms(x int64) {
