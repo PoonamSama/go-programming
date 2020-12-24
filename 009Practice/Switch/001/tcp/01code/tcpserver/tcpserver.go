@@ -22,7 +22,7 @@ func main() {
 		connx.Write([]byte(myTime))
 
 	}
-
+	//connx.Close()
 }
 func ercheck(err error) {
 	if err != nil {
