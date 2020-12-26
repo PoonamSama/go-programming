@@ -17,7 +17,7 @@ func main() {
 
 	connx, err := ln.Accept()
 	ercheck(err)
-	defer connx.Close()
+	//defer connx.Close()
 	for {
 		netdata, err := bufio.NewReader(connx).ReadString('\n') //gives string and error
 		ercheck(err)
@@ -76,12 +76,7 @@ func ercheck(err error) {
 }
 
 func amt(y string, z int64) (int64, int64) {
-	//scanner := bufio.NewScanner(os.Stdin)
-	//scanner:=y
-	//fmt.Println("Enter the amount you want to withdraw:")
-	//scanner.Scan()
 
-	//input, err := strconv.ParseInt(scanner.Text(), 10, 64)
 	input, err := strconv.ParseInt(y, 10, 64)
 	fmt.Println(input)
 	if err != nil {
