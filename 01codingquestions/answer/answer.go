@@ -51,7 +51,7 @@ func main() {
 			fmt.Println("Your total transactions today:", count)
 			e := fmt.Errorf("Error!your account balance is %v .It is less than 100.You can't withdraw", balance)
 			log.Fatalln((e))
-		}
+		}	
 		s = foo()
 		for s == "none" {
 			s = foo()
