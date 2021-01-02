@@ -57,8 +57,9 @@ func request(conn net.Conn) {
 			fmt.Println("***METHOD", m)
 			if m == "GET" {
 				grogu = fmt.Sprint("balance")
+				fmt.Println("grogu is:", grogu)
 			} else if m == "POST" && path == "/logout" {
-				fmt.Println("Initiating exit")
+				fmt.Println("Client wants to logout.Initiating exit")
 				getbody = "Initiating exit"
 				os.Exit(1)
 			} else if m == "POST" {
@@ -69,26 +70,31 @@ func request(conn net.Conn) {
 				getbody = "Invalid Method. Only GET and POST are acceptable."
 			}
 		}
-
 		if ln == "" {
 			// headers are done
 			x = fmt.Sprint(i)
+			a, _ = strconv.Atoi(x)
 			loop++
-			if loop > 1 {
+			if grogu == "balance" {
 				printing(grogu, balance1)
+				break
+			}
+			if grogu == "startt" && loop == 2 {
+				printing(grogu, balance1)
+				break
+			}
+			if grogu == "InvalidMethod" {
 				break
 			}
 			continue
 		}
 		i++
-		a, _ = strconv.Atoi(x)
 		if a != 0 && i == a+1 {
 			p := strings.Fields(ln)
 			b := foo(p, grogu)
 			if b == "stop" {
 				break
 			}
-
 			break
 		}
 
@@ -172,7 +178,7 @@ func printing(grogu string, balance1 int) {
 	fmt.Println("count is:", count)
 	fmt.Println("client didnt give a value or body")
 	if grogu == "balance" {
-		fmt.Println("method get no input, the balance is:", balance1)
+		fmt.Println("method get , the balance is:", balance1)
 		j := fmt.Sprintf("Your balance: %d\n", balance1)
 		getbody = j
 	}
@@ -180,7 +186,6 @@ func printing(grogu string, balance1 int) {
 		if count >= 5 {
 			fmt.Println("Error! you have made maximum number of transactions for today:5")
 			getbody = "Maximum transactions reached for a day:5"
-
 		} else {
 			fmt.Println("client must give some value")
 			getbody = "Please enter a value. Field can't be empty."
@@ -220,4 +225,4 @@ func denoms(x int) string {
 	fmt.Printf("500*%d +200*%d +100*%d \n", q1, q2, q3)
 	i := fmt.Sprintf("500*%d +200*%d +100*%d ", q1, q2, q3)
 	return i
-}
+} // this is old code

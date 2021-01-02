@@ -132,25 +132,30 @@ func foo(p []string, x string) string {
 		case 0:
 			fmt.Println("Error!Please enter an integer")
 			getbody = "Error!Please enter an integer"
-			break
+			//break
+			return "stop"
 
 		case 10:
 			fmt.Println("Error!Please enter a Positive value")
 			getbody = "Error!Please enter a Positive value"
-			break
+			//break
+			return "stop"
 		case 20:
 			fmt.Println("Error!Please enter amount divisible by 100 ")
 			getbody = "Error!Please enter amount divisible by 100 "
-			break
+			//break
+			return "stop"
 		case 30:
 			fmt.Println("Error! Please enter amount less than or equal to 5000")
 			getbody = "Error! Please enter amount less than or equal to 5000"
-			break
+			//break
+			return "stop"
 		case 40:
 			fmt.Printf("Error!Please enter amount less than or equal to your account balance that is: %v\n", balance1)
 			j := fmt.Sprintf("Error!Please enter amount less than or equal to your account balance that is: %v\t", balance1)
 			getbody = j
-			break
+			//break
+			return "stop"
 		default:
 			count++
 			i := denoms(amount)
@@ -158,7 +163,8 @@ func foo(p []string, x string) string {
 			fmt.Println("TRANSACTION SUCCESSFUL.YOUR BALANCE NOW IS:", balance1)
 			j := fmt.Sprintf(" \n TRANSACTION SUCCESSFUL. Enter value and Send if you want to start another transaction.  You can logout using POST/logout")
 			getbody = i + j
-			break
+			return "stop"
+			//break
 		}
 	} else {
 		getbody = "Invalid method. Only GET and POST are acceptable."
