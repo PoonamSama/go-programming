@@ -42,7 +42,7 @@ func handle(conn net.Conn) {
 }
 
 func request(conn net.Conn) {
-	var x string
+	var x string //
 	i, a := 0, 0
 	loop := 0
 	scanner := bufio.NewScanner(conn)
@@ -161,12 +161,13 @@ func foo(p []string, x string) string {
 	return "ok"
 }
 func respond(conn net.Conn) {
-	body := getbody
+	body1 := `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title></title></head><body><strong>Hello there World</strong></body></html>`
+	//body := getbody
 	fmt.Fprint(conn, "HTTP/1.1 200 OK\r\n")
-	fmt.Fprintf(conn, "Content-Length: %d\r\n", len(body))
+	fmt.Fprintf(conn, "Content-Length: %d\r\n", len(body1))
 	fmt.Fprint(conn, "Content-Type: text/html\r\n")
 	fmt.Fprint(conn, "\r\n")
-	fmt.Fprint(conn, body)
+	fmt.Fprint(conn, body1)
 }
 func printing(grogu string, balance1 int) {
 	fmt.Println("count is:", count)
