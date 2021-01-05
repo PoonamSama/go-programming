@@ -8,76 +8,73 @@ import (
 )
 
 var balance = 9563
-var count = 0
+var transactionCount = 0
 
-//LOGIN exported
-type LOGIN struct {
+//INPUT exported
+type INPUT struct {
 	AMOUNT int `json:"amount"`
 }
 
 func main() {
-	r := gin.Default()
-	r.GET("/check", func(c *gin.Context) {
-		c.String(200, "Welcome")
-	})
-	r.GET("/", func(c *gin.Context) {
+	server := gin.Default()
+	server.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{"Your balance is": balance})
 	})
-	r.POST("/", func(c *gin.Context) {
-		var login LOGIN
-		c.BindJSON(&login)
-		c.JSON(200, gin.H{"Result": postresponds(login.AMOUNT)})
+	server.POST("/", func(c *gin.Context) {
+		var input INPUT
+		c.BindJSON(&input)
+		c.JSON(200, gin.H{"Result": transaction(input.AMOUNT)})
 	})
-	r.POST("/exit", func(c *gin.Context) {
+	server.POST("/exit", func(c *gin.Context) {
 		c.JSON(200, "Exit")
 		os.Exit(1)
 	})
-	r.Run(":8080") // listen for incoming connections
+	server.Run(":8080") // listen for incoming connections
 }
-func postresponds(amountInt int) string { //response func for method POST/
-	if count >= 5 {
+func transaction(clientInput int) string { //response func for method POST/
+	if transactionCount >= 5 {
 		fmt.Println("Error! you have made maximum number of transactions for today: 5.")
-		errj := fmt.Sprintf("Maximum transactions reached for a day:5.You can exit by POST/exit.")
-		return errj
+		message := fmt.Sprintf("Maximum transactions reached for a day:5.You can exit by POST/exit.")
+		return message
 	}
 	if balance < 100 {
 		fmt.Println("Balance less than 100. You can't withdraw.")
-		errj := fmt.Sprintf("Balance less than 100.You can't withdraw.You can exit by POST/exit")
-		return errj
+		message := fmt.Sprintf("Balance less than 100.You can't withdraw.You can exit by POST/exit")
+		return message
 	}
-	x, amount := amt(amountInt, balance)
-	switch x {
+	checkValue, amount := checkInput(clientInput, balance)
+	switch checkValue {
 	case 0:
 		fmt.Println("Error!Please enter ONLY ONE natural number")
-		errj := ("Error!Please enter ONE natural number")
-		return errj
+		message := ("Error!Please enter ONE natural number")
+		return message
 	case 10:
 		fmt.Println("Error!Please enter a Positive value")
-		errj := fmt.Sprintf("Error!Please enter a Positive value ")
-		return errj
+		message := fmt.Sprintf("Error!Please enter a Positive value ")
+		return message
 	case 20:
 		fmt.Println("Error!Please enter amount divisible by 100 ")
-		errj := fmt.Sprintf("Error!Please enter amount divisible by 100 ")
-		return errj
+		message := fmt.Sprintf("Error!Please enter amount divisible by 100 ")
+		return message
 	case 30:
 		fmt.Println("Error! Please enter amount less than or equal to 5000")
-		errj := fmt.Sprintf("Error! Please enter amount less than or equal to 5000 ")
-		return errj
+		message := fmt.Sprintf("Error! Please enter amount less than or equal to 5000 ")
+		return message
 	case 40:
 		fmt.Printf("Error!Please enter amount less than or equal to your account balance that is: %v\n", balance)
-		errj := fmt.Sprintf("Error!Please enter amount less than or equal to your account balance")
-		return errj
+		message := fmt.Sprintf("Error!Please enter amount less than or equal to your account balance")
+		return message
 	default:
-		count++
-		i := denoms(amount)
+		transactionCount++
+		i := denominations(amount)
 		balance = balance - amount
 		fmt.Println("\n TRANSACTION SUCCESSFUL.YOUR BALANCE NOW IS\n:", balance)
 		j := fmt.Sprintf("TRANSACTION SUCCESSFUL. ")
-		errj := i + j
-		return errj
+		message := i + j
+		return message
 	}
 }
-func amt(input int, balance int) (int, int) { //func to check valid amount given by client
+func checkInput(input int, balance int) (int, int) { //func to check valid amount given by client
 	if input == 0 {
 		return 0, input
 	}
@@ -96,15 +93,15 @@ func amt(input int, balance int) (int, int) { //func to check valid amount given
 	return 50, input
 }
 
-func denoms(x int) string { //func to find out denominations of currency
+func denominations(total int) string { //func to find out denominations of currency
 	var q1 int
 	var q2 int
 	var q3 int
-	q1 = x / 500
-	x = x % 500
-	q2 = x / 200
-	x = x % 200
-	q3 = x / 100
+	q1 = total / 500
+	total = total % 500
+	q2 = total / 200
+	total = total % 200
+	q3 = total / 100
 	fmt.Printf("500*%d +200*%d +100*%d \n", q1, q2, q3)
 	i := fmt.Sprintf("500*%d +200*%d +100*%d ", q1, q2, q3)
 	return i
