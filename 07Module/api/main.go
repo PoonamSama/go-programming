@@ -87,13 +87,20 @@ func main() {
 				fmt.Println("Error in inserting amount:", errInWithdrawal)
 			}
 		}
+		var results []withdrawalsTable
+		err2 := allWithdrawals.Find(nil).All(&results)
+		length := len(results)
+		latestTime := results[length-1].TimeStamp
+		if err2 != nil {
+			fmt.Println(err)
+		}
 		//Updating the balance table
 		selector := bson.M{"_id": balanceID}
 		updator := bson.M{"$inc": bson.M{"balance": -clientAmount}}
 		if errInWithdrawal == nil {
 			if errInBalance = balanceTable.Update(selector, updator); errInBalance != nil {
 				fmt.Println("Error in updating balance:", errInBalance)
-				allWithdrawals.Remove(bson.M{"amount": clientAmount})
+				allWithdrawals.Remove(bson.M{"Timestamp": latestTime})
 			}
 		}
 		err = balanceTable.FindId(balanceID).Select(bson.M{"balance": 1}).All(&balanceDetails)
