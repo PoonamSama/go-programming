@@ -60,6 +60,11 @@ func main() {
 	if errinID != nil {
 		log.Fatalln(errinID)
 	}
+	transactionID := bson.NewObjectId()
+	errinID = isObjectIDValid(transactionID)
+	if errinID != nil {
+		log.Fatalln(errinID)
+	}
 	balanceTable := session.DB(database).C(collection2)
 	allWithdrawals := session.DB(database).C(collection1)
 
@@ -83,16 +88,9 @@ func main() {
 
 		clientAmount, showMessage := withdrawAmount(cI.Value, balanceDetails[0].Balance, &numberOfWithdrawals)
 		if clientAmount != 0 {
-			if errInWithdrawal = allWithdrawals.Insert(&withdrawalsTable{Amount: clientAmount, TimeStamp: time.Now()}); errInWithdrawal != nil {
+			if errInWithdrawal = allWithdrawals.Insert(&withdrawalsTable{ID: transactionID, Amount: clientAmount, TimeStamp: time.Now()}); errInWithdrawal != nil {
 				fmt.Println("Error in inserting amount:", errInWithdrawal)
 			}
-		}
-		var results []withdrawalsTable
-		err2 := allWithdrawals.Find(nil).All(&results)
-		length := len(results)
-		latestTime := results[length-1].TimeStamp
-		if err2 != nil {
-			fmt.Println(err)
 		}
 		//Updating the balance table
 		selector := bson.M{"_id": balanceID}
@@ -100,7 +98,7 @@ func main() {
 		if errInWithdrawal == nil {
 			if errInBalance = balanceTable.Update(selector, updator); errInBalance != nil {
 				fmt.Println("Error in updating balance:", errInBalance)
-				allWithdrawals.Remove(bson.M{"Timestamp": latestTime})
+				allWithdrawals.Remove(bson.M{"_id": transactionID})
 			}
 		}
 		err = balanceTable.FindId(balanceID).Select(bson.M{"balance": 1}).All(&balanceDetails)
@@ -108,6 +106,7 @@ func main() {
 			fmt.Println(err)
 		}
 		c.JSON(200, gin.H{"Result": showMessage})
+		transactionID = bson.NewObjectId()
 	})
 
 	server.GET("/", func(c *gin.Context) {
