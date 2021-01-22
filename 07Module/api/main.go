@@ -107,6 +107,10 @@ func main() {
 		}
 		c.JSON(200, gin.H{"Result": showMessage})
 		transactionID = bson.NewObjectId()
+		errinID = isObjectIDValid(transactionID)
+		if errinID != nil {
+			log.Fatalln(errinID)
+		}
 	})
 
 	server.GET("/", func(c *gin.Context) {
