@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -30,8 +29,8 @@ type withdrawValue struct {
 	Value int `json:"value"`
 }
 
-func isObjectIDValid(i bson.ObjectId) error {
-	j := i.Valid()
+func isObjectIDValid(id bson.ObjectId) error {
+	j := id.Valid()
 	if j == false {
 		err := fmt.Errorf("Invalid Object ID")
 		return err
@@ -39,9 +38,7 @@ func isObjectIDValid(i bson.ObjectId) error {
 	return nil
 }
 func main() {
-	numberOfWithdrawals := 0
 	var balanceDetails []userBalance
-	var transactionDetails []withdrawalsTable
 	var errInBalance error
 	var errInWithdrawal error
 
@@ -58,9 +55,9 @@ func main() {
 	}
 	defer session.Close()
 	balanceID := bson.NewObjectId()
-	errinBalID := isObjectIDValid(balanceID)
-	if errinBalID != nil {
-		fmt.Println(errinBalID)
+	errinBalanceID := isObjectIDValid(balanceID)
+	if errinBalanceID != nil {
+		fmt.Println(errinBalanceID)
 	}
 	transactionID := bson.NewObjectId()
 	errinTransactionID := isObjectIDValid(transactionID)
@@ -70,18 +67,27 @@ func main() {
 	balanceTable := session.DB(database).C(collection2)
 	allWithdrawals := session.DB(database).C(collection1)
 
-	balanceTable.RemoveAll(nil)
+	//balanceTable.RemoveAll(nil)
 	//allWithdrawals.RemoveAll(nil)
-
+	presentTime := time.Now()
+	timeDifference := presentTime.Add(time.Hour * (-24))
+	numOfWithdrawals, err := allWithdrawals.Find(bson.M{
+		"Timestamp": bson.M{
+			"$gt": timeDifference,
+		},
+	}).Count()
+	if err != nil {
+		fmt.Println(err)
+	}
 	//Inserting initial value in the balance table
-	if errinBalID == nil {
+	if errinBalanceID == nil {
 		if errInBalance = balanceTable.Insert(&userBalance{ID: balanceID, Balance: 9563}); errInBalance != nil {
 			fmt.Println("Error in inserting balance:", err)
 		}
 	}
-	err = balanceTable.FindId(balanceID).Select(bson.M{"balance": 1}).All(&balanceDetails)
-	if err != nil {
-		fmt.Println("Error in finding balance field:", err)
+	errFindingBalance := balanceTable.FindId(balanceID).Select(bson.M{"balance": 1}).All(&balanceDetails)
+	if errFindingBalance != nil {
+		fmt.Println("Error in finding balance field:", errFindingBalance)
 	}
 
 	server := gin.Default()
@@ -89,40 +95,48 @@ func main() {
 	server.POST("/", func(c *gin.Context) {
 		clientInput := withdrawValue{}
 		c.BindJSON(&clientInput)
-
-		clientAmount, showMessage := withdrawAmount(clientInput.Value, balanceDetails[0].Balance, &numberOfWithdrawals)
+		clientAmount, showMessage := withdrawAmount(clientInput.Value, balanceDetails[0].Balance, numOfWithdrawals)
 		if errinTransactionID == nil && clientAmount != 0 {
 			if errInWithdrawal = allWithdrawals.Insert(&withdrawalsTable{ID: transactionID, Amount: clientAmount, TimeStamp: time.Now()}); errInWithdrawal != nil {
 				fmt.Println("Error in inserting amount:", errInWithdrawal)
 			}
 		}
-		err = allWithdrawals.Find(nil).All(&transactionDetails)
-		if err != nil {
-			fmt.Println(err)
-		}
 		//Updating the balance table
 		selector := bson.M{"_id": balanceID}
 		updator := bson.M{"$inc": bson.M{"balance": -clientAmount}}
-		if errInWithdrawal == nil && errinBalID == nil {
+		if errInWithdrawal == nil && errinBalanceID == nil {
 			if errInBalance = balanceTable.Update(selector, updator); errInBalance != nil {
 				fmt.Println("Error in updating balance:", errInBalance)
 				allWithdrawals.Remove(bson.M{"_id": transactionID})
 			}
 		}
-		err = balanceTable.FindId(balanceID).Select(bson.M{"balance": 1}).All(&balanceDetails)
-		if err != nil {
-			fmt.Println(err)
+		errFindingBalance = balanceTable.FindId(balanceID).Select(bson.M{"balance": 1}).All(&balanceDetails)
+		if errFindingBalance != nil {
+			fmt.Println(errFindingBalance)
 		}
 		c.JSON(200, gin.H{"Result": showMessage})
+
 		transactionID = bson.NewObjectId()
 		errinTransactionID = isObjectIDValid(transactionID)
 		if errinTransactionID != nil {
-			log.Fatalln(errinTransactionID)
+			fmt.Println(errinTransactionID)
+		}
+		presentTime := time.Now()
+		timeDifference := presentTime.Add(time.Hour * (-24))
+		numOfWithdrawals, err = allWithdrawals.Find(bson.M{
+			"Timestamp": bson.M{
+				"$gt": timeDifference,
+			},
+		}).Count()
+		if err != nil {
+			fmt.Println(err)
 		}
 	})
 
 	server.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{"Your balance is": balanceDetails[0].Balance}) // err in findind bal
+		if errFindingBalance == nil {
+			c.JSON(200, gin.H{"Your balance is": balanceDetails[0].Balance})
+		}
 	})
 
 	server.POST("/exit", func(c *gin.Context) {
@@ -134,8 +148,8 @@ func main() {
 		fmt.Println(err)
 	}
 }
-func withdrawAmount(clientVal int, userbalance int, counterPtr *int) (int, string) {
-	if *counterPtr >= 5 {
+func withdrawAmount(clientValue int, userbalance int, withdrawalCount int) (int, string) {
+	if withdrawalCount >= 5 {
 		fmt.Println("Error! you have made maximum number of transactions for today: 5.")
 		message := fmt.Sprintf("Maximum transactions reached for a day:5. You can exit using POST/exit.")
 		return 0, message
@@ -144,7 +158,7 @@ func withdrawAmount(clientVal int, userbalance int, counterPtr *int) (int, strin
 		message := fmt.Sprintf("Balance less than 100.You can't withdraw anymore.You can exit using POST/exit.")
 		return 0, message
 	}
-	checkValue, amount := isAmountValid(clientVal, userbalance)
+	checkValue, amount := isAmountValid(clientValue, userbalance)
 	switch checkValue {
 	case 0:
 		message := ("Error!Please enter ONE natural number.")
@@ -162,11 +176,7 @@ func withdrawAmount(clientVal int, userbalance int, counterPtr *int) (int, strin
 		message := fmt.Sprintf("Error!Please enter amount less than or equal to your account balance")
 		return 0, message
 	default:
-		*counterPtr++
-		i := getDenominations(amount)
-		userbalance = userbalance - amount
-		j := fmt.Sprintf("TRANSACTION SUCCESSFUL.")
-		message := i + j
+		message := getDenominations(amount) + "TRANSACTION SUCCESSFUL."
 		return amount, message
 	}
 }
@@ -198,6 +208,6 @@ func getDenominations(total int) string {
 	total = total % 200
 	q3 = total / 100
 	fmt.Printf("500*%d +200*%d +100*%d \n", q1, q2, q3)
-	i := fmt.Sprintf("500*%d +200*%d +100*%d ", q1, q2, q3)
-	return i
+	showDenominations := fmt.Sprintf("500*%d +200*%d +100*%d ", q1, q2, q3)
+	return showDenominations
 }
