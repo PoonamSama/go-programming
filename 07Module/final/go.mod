@@ -1,4 +1,4 @@
-module github.com/GoesToEleven/go-programming/07Module/api/FINAL
+module github.com/GoesToEleven/go-programming/07Module/final
 
 go 1.15
 
