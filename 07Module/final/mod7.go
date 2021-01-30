@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	database    = "ATM_DB"
-	collection1 = "WITHDRAWAL_COLLECTION"
-	collection2 = "BALANCE_COLLECTION"
+	database                 = "ATM_DB"
+	allWithdrawalsCollection = "WITHDRAWAL_COLLECTION"
+	allUserBalanceCollection = "BALANCE_COLLECTION"
 )
 
 type userBalance struct {
@@ -31,22 +31,17 @@ type withdrawValue struct {
 }
 
 func isObjectIDValid(id bson.ObjectId) error {
-	j := id.Valid()
-	if j == false {
+	idValidityStatus := id.Valid()
+	if idValidityStatus == false {
 		err := fmt.Errorf("Invalid Object ID")
 		return err
 	}
 	return nil
 }
 func main() {
-	var balanceDetails []userBalance
-	var errInBalanceUpdate error
-	var errInWithdrawal error
-
 	Host := []string{
 		"127.0.0.1:27017",
 	}
-
 	session, err := mgo.DialWithInfo(&mgo.DialInfo{
 		Addrs: Host,
 	})
@@ -55,8 +50,8 @@ func main() {
 		os.Exit(1)
 	}
 	defer session.Close()
-	balanceTable := session.DB(database).C(collection2)
-	allWithdrawals := session.DB(database).C(collection1)
+	balanceTable := session.DB(database).C(allUserBalanceCollection)
+	allWithdrawalsTable := session.DB(database).C(allWithdrawalsCollection)
 
 	server := gin.Default()
 
@@ -64,68 +59,75 @@ func main() {
 		if c.Param("id") == "exit" {
 			os.Exit(1)
 		}
-		checkIDvalid := bson.IsObjectIdHex(c.Param("id"))
-		if checkIDvalid == false {
-			c.JSON(400, gin.H{"Result": "Invalid Object ID"})
+		isClientIDvalid := bson.IsObjectIdHex(c.Param("id"))
+		if isClientIDvalid == false {
+			c.JSON(400, gin.H{"Result": "You entered Invalid Object ID"})
 		} else {
 			balanceID := bson.ObjectIdHex(c.Param("id"))
-			errInFindBalance := balanceTable.FindId(balanceID).Select(bson.M{"balance": 1}).All(&balanceDetails)
+			var balanceDetails userBalance
+			errInFindBalance := balanceTable.FindId(balanceID).Select(bson.M{"balance": 1}).One(&balanceDetails)
 			if errInFindBalance != nil {
-				fmt.Println("Error in finding balance field:", errInFindBalance)
-				c.JSON(500, gin.H{"Result": "Internal Error in finding balance field."})
-			} else if len(balanceDetails) == 0 {
-				c.JSON(400, gin.H{"Result": "This ID does not exist"})
+				c.JSON(400, gin.H{"Result": "Error in finding balance field:" + errInFindBalance.Error() + "Make sure you entered the correct ID that exists."})
 			} else {
 				presentTime := time.Now()
 				timeDifference := presentTime.Add(time.Hour * (-24))
-				numOfWithdrawals, errInCountingWithdrawal := allWithdrawals.Find(bson.M{"customer_id": balanceID, "Timestamp": bson.M{"$gt": timeDifference}}).Count()
-				clientInput := withdrawValue{}
-				c.BindJSON(&clientInput)
-
-				transactionID := bson.NewObjectId()
-				errinTransactionID := isObjectIDValid(transactionID)
-				if errinTransactionID != nil {
-					fmt.Println(errinTransactionID)
-				}
-				clientAmount, showMessage := withdrawAmount(clientInput.Value, balanceDetails[0].Balance, numOfWithdrawals)
-				if errinTransactionID == nil && errInCountingWithdrawal == nil && clientAmount != 0 {
-					if errInWithdrawal = allWithdrawals.Insert(&withdrawalsTable{ID: transactionID, CustomerID: balanceID, Amount: clientAmount, TimeStamp: time.Now()}); errInWithdrawal != nil {
-						fmt.Println("Error in inserting amount:", errInWithdrawal)
-					} // err in inserting amount
-
-					//Updating the balance table
-					selector := bson.M{"_id": balanceID}
-					updator := bson.M{"$inc": bson.M{"balance": -clientAmount}}
-					if errInWithdrawal == nil {
-						if errInBalanceUpdate = balanceTable.Update(selector, updator); errInBalanceUpdate != nil {
-							fmt.Println("Error in updating balance:", errInBalanceUpdate)
-							allWithdrawals.Remove(bson.M{"_id": transactionID})
+				numOfWithdrawals, errInCountingWithdrawal := allWithdrawalsTable.Find(bson.M{"customer_id": balanceID, "Timestamp": bson.M{"$gt": timeDifference}}).Count()
+				if errInCountingWithdrawal != nil {
+					c.JSON(500, gin.H{"Result": "Internal error in transaction:" + errInCountingWithdrawal.Error()})
+				} else {
+					if numOfWithdrawals >= 5 {
+						c.JSON(400, gin.H{"Result": "You have made Maximum number of withdrawals allowed in 24 hours:5. You can exit using POST/exit."})
+					} else {
+						clientInput := withdrawValue{}
+						errInClientInput := c.BindJSON(&clientInput)
+						if errInClientInput == nil {
+							transactionID := bson.NewObjectId()
+							errinTransactionID := isObjectIDValid(transactionID)
+							transactionStatus, showMessage := generateStatusAndMessage(clientInput.Value, balanceDetails.Balance)
+							if errinTransactionID == nil {
+								if transactionStatus == "Transaction Allowed" {
+									if errInWithdrawal := allWithdrawalsTable.Insert(&withdrawalsTable{ID: transactionID, CustomerID: balanceID, Amount: clientInput.Value, TimeStamp: time.Now()}); errInWithdrawal != nil {
+										fmt.Println("Error in inserting amount:", errInWithdrawal)
+										c.JSON(500, gin.H{"Result": "Internal Error in transaction:" + errInWithdrawal.Error()})
+									} else {
+										//Updating the balance table
+										selector := bson.M{"_id": balanceID}
+										updator := bson.M{"$inc": bson.M{"balance": -clientInput.Value}}
+										if errInBalanceUpdate := balanceTable.Update(selector, updator); errInBalanceUpdate != nil {
+											fmt.Println("Error in updating balance:", errInBalanceUpdate)
+											allWithdrawalsTable.Remove(bson.M{"_id": transactionID})
+											c.JSON(500, gin.H{"Result": "Internal Error in transaction:" + errInBalanceUpdate.Error() + "Try Again."})
+										} else {
+											c.JSON(200, gin.H{"Result": showMessage})
+										}
+									}
+								} else {
+									c.JSON(400, gin.H{"Result": showMessage})
+								}
+							} else {
+								c.JSON(500, gin.H{"Result": "Internal Error in transaction.Error occured in transactionID:" + errinTransactionID.Error() + "Try Again."})
+							}
+						} else {
+							c.JSON(400, gin.H{"Result": "You entered Invalid Amount." + errInClientInput.Error()})
 						}
 					}
-				}
-				if errinTransactionID == nil && errInCountingWithdrawal == nil && errInWithdrawal == nil && errInBalanceUpdate == nil {
-					c.JSON(200, gin.H{"Result": showMessage})
-				} else {
-					c.JSON(500, gin.H{"Result": "Internal Error in transaction.Try Again."})
 				}
 			}
 		}
 	})
 
 	server.GET("/:id", func(c *gin.Context) {
-		checkIDvalid := bson.IsObjectIdHex(c.Param("id"))
-		if checkIDvalid == false {
+		isClientIDvalid := bson.IsObjectIdHex(c.Param("id"))
+		if isClientIDvalid == false {
 			c.JSON(400, gin.H{"Result": "Invalid Object ID"})
 		} else {
 			balanceID := bson.ObjectIdHex(c.Param("id"))
-			errInFindBalance := balanceTable.FindId(balanceID).Select(bson.M{"balance": 1}).All(&balanceDetails)
+			var balanceDetails userBalance
+			errInFindBalance := balanceTable.FindId(balanceID).Select(bson.M{"balance": 1}).One(&balanceDetails)
 			if errInFindBalance != nil {
-				fmt.Println("Error in finding balance field:", errInFindBalance)
-				c.JSON(500, gin.H{"Result": "Internal error in finding balance field. Please try again later."})
-			} else if len(balanceDetails) == 0 {
-				c.JSON(400, gin.H{"Result": "This ID does not exist"})
+				c.JSON(400, gin.H{"Result": "Error in finding balance field:" + errInFindBalance.Error() + ". Make sure you entered the correct ID that exists."})
 			} else {
-				c.JSON(200, gin.H{"Your balance is": balanceDetails[0].Balance})
+				c.JSON(200, gin.H{"Your balance is": balanceDetails.Balance})
 			}
 		}
 	})
@@ -134,65 +136,60 @@ func main() {
 		fmt.Println(err)
 	}
 }
-func withdrawAmount(clientValue int, userbalance int, withdrawalCount int) (int, string) {
-	if withdrawalCount >= 5 {
-		fmt.Println("Error! you have made maximum number of transactions for today: 5.")
-		message := fmt.Sprintf("Maximum transactions reached for a day:5. You can exit using POST/exit.")
-		return 0, message
-	}
+func generateStatusAndMessage(clientValue int, userbalance int) (string, string) {
 	if userbalance < 100 {
 		message := fmt.Sprintf("Balance less than 100.You can't withdraw anymore.You can exit using POST/exit.")
-		return 0, message
+		return "Low Balance.Transaction not Allowed", message
 	}
-	checkValue, amount := isAmountValid(clientValue, userbalance)
-	switch checkValue {
+	statusCode := isAmountValid(clientValue, userbalance)
+	switch statusCode {
 	case 0:
-		message := ("Error!Please enter ONE natural number.")
-		return 0, message
+		message := fmt.Sprintf("Error!Please enter ONE natural number, in the correct format,JSON field name is: value.")
+		return "Invalid Amount.Transaction not Allowed", message
 	case 10:
 		message := fmt.Sprintf("Error!Please enter a Positive value ")
-		return 0, message
+		return "Invalid Amount.Transaction not Allowed", message
 	case 20:
 		message := fmt.Sprintf("Error!Please enter amount divisible by 100 ")
-		return 0, message
+		return "Invalid Amount.Transaction not Allowed", message
 	case 30:
 		message := fmt.Sprintf("Error! Please enter amount less than or equal to 5000 ")
-		return 0, message
+		return "Invalid Amount.Transaction not Allowed", message
 	case 40:
 		message := fmt.Sprintf("Error!Please enter amount less than or equal to your account balance")
-		return 0, message
+		return "Invalid Amount.Transaction not Allowed", message
 	default:
-		message := getDenominations(amount) + "TRANSACTION SUCCESSFUL."
-		return amount, message
+		message := getDenominations(clientValue) + "TRANSACTION SUCCESSFUL."
+		return "Transaction Allowed", message
 	}
 }
-func isAmountValid(input int, balance int) (int, int) {
-	if input == 0 {
-		return 0, input
+func isAmountValid(clientAmount int, balance int) int {
+	if clientAmount == 0 {
+		return 0
 	}
-	if input < 0 {
-		return 10, input
+	if clientAmount < 0 {
+		return 10
 	}
-	if input%100 != 0 {
-		return 20, input
+	if clientAmount%100 != 0 {
+		return 20
 	}
-	if input > 5000 {
-		return 30, input
+	if clientAmount > 5000 {
+		return 30
 	}
-	if balance-input < 0 {
-		return 40, input
+	if balance-clientAmount < 0 {
+		return 40
 	}
-	return 50, input
+	return 50
 }
-func getDenominations(total int) string {
+func getDenominations(totalAmount int) string {
 	var q1 int
 	var q2 int
 	var q3 int
-	q1 = total / 500
-	total = total % 500
-	q2 = total / 200
-	total = total % 200
-	q3 = total / 100
+	q1 = totalAmount / 500
+	totalAmount = totalAmount % 500
+	q2 = totalAmount / 200
+	totalAmount = totalAmount % 200
+	q3 = totalAmount / 100
 	fmt.Printf("500*%d +200*%d +100*%d \n", q1, q2, q3)
 	showDenominations := fmt.Sprintf("500*%d +200*%d +100*%d ", q1, q2, q3)
 	return showDenominations
