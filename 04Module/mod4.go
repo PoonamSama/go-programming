@@ -11,6 +11,7 @@ type withdrawValue struct {
 	AMOUNT int `json:"amount" `
 }
 
+//main function
 func main() {
 	balance := 9563
 	transactionCount := 0
