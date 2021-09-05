@@ -2,6 +2,8 @@ package main
 
 import "fmt"
 
+// comment added as test
+
 func main() {
 	var s string
 	fmt.Println("Please enter a choice: yes or no")
