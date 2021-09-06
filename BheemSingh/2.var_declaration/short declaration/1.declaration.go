@@ -5,7 +5,7 @@ import "fmt"
 
 func main() {
 	//declaration and initialization
-	//use of short declaration operator :=
+	//use of short declaration operator := (only in the func main cannot use this outside func main)
 	x := 12
 	fmt.Println(x)
 	y := 12 + 24
