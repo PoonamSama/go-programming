@@ -12,3 +12,5 @@ func main() {
 	fmt.Println(y)
 
 }
+
+//feedback: as mentioned in the comment in line 8, make another file where you use this outside func main . It is better to show that through a go program.
