@@ -10,6 +10,7 @@ func main() {
 
 	fmt.Println(x)
 	fmt.Printf("%T\n", x)
-	fmt.Println(y)
+	fmt.Println(y) //feedback: when printing on console, this just prints a blank line and then program exits. So it will be more informative to print something like this
+	fmt.Println("the default value of an empty string: ", y)
 
 }
