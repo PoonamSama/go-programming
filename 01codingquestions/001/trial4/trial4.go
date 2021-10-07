@@ -6,6 +6,7 @@ import (
 	"log"
 )
 
+// main function
 func main() {
 	var balance int = 9563
 	var amount int
